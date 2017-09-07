@@ -534,6 +534,12 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_em_trocaregioes_cpp_em"><em>TrocaRegioes.cpp</em></a></li>
 </ul>
 </li>
+<li><a href="#_3_preenchendo_regiões">3. Preenchendo regiões</a>
+<ul class="sectlevel2">
+<li><a href="#_o_problema_do_em_labeling_cpp_em">O problema do <em>labeling.cpp</em></a></li>
+<li><a href="#_em_labelingburacos_cpp_em"><em>LabelingBuracos.cpp</em></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -715,13 +721,179 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 <div class="title">Figure 4. Resultado do processamento</div>
 </div>
+<div class="paragraph">
+<p>Foi utilizada uma matriz auxiliar que mantinha uma cópia da imagem a ser processada e a partir dela os quadrantes foram realocados numa troca diagonal.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_preenchendo_regiões">3. Preenchendo regiões</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_o_problema_do_em_labeling_cpp_em">O problema do <em>labeling.cpp</em></h3>
+<div class="paragraph">
+<p>Da forma como foi apresentado, o programa <em>labeling.cpp</em> esbarra em um problema quando se tem mais de 255 objetos diferentes na cena. Para evitar esse problema, podemos usar um tom de cinza específico para preencher as áreas dos objetos contados, ao invés de usar um tom de cinza diferente para cada um. Dessa forma, a variável que vai sendo incrementada só serve para a contagem e pode ter qualquer valor.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_em_labelingburacos_cpp_em"><em>LabelingBuracos.cpp</em></h3>
+<div class="paragraph">
+<p>O objetivo desse aprimoramento do código <em>labeling.cpp</em> foi de identificar regiões com ou sem buracos internos que existam na cena, removendo as bolhas que tocam as paredes. A remoção das bolhas que tocam as bordas é o primeiro passo do algoritmo. Para isso, usei um floodfill com a cor do fundo (preto) em todas as bolhas que estivessem nas bordas horizontais e verticais. Após isso, o algoritmo segue na busca dos objetos de forma parecida ao código original, pintando cada novo objeto com um tom de cinza diferente. Depois disso, usando o floodfill, o fundo é pintado de branco (255) fazendo com que as únicas regiões da imagem que tenham tom de cinza preto (0) sejam os buracos dentro das bolhas. A partir daí, são contados as bolhas que contém buracos de forma parecida com a contagem anterior. Entretanto, não podemos contar uma bolha que tem dois buracos como se fossem duas bolhas. Assim, quando um buraco é encontrado, a bolha é pintada do tom de cinza 254. No fim, temos o resultado do número de bolhas, quantas delas têm buracos e quantos buracos ao todo temos nas bolhas.</p>
+</div>
+<div class="listingblock">
+<div class="title">labelingburacos.cpp</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="cpp"><span class="preprocessor">#include</span> <span class="include">&lt;iostream&gt;</span>
+<span class="preprocessor">#include</span> <span class="include">&lt;opencv2/opencv.hpp&gt;</span>
+
+<span class="directive">using</span> <span class="keyword">namespace</span> cv;
+
+<span class="predefined-type">int</span> main(<span class="predefined-type">int</span> argc, <span class="predefined-type">char</span>**) {
+        Mat image, mask;
+        <span class="predefined-type">int</span> width, height;
+        <span class="predefined-type">int</span> nobjects, nburacos, nobjburacos;
+
+        CvPoint p;
+        image = imread(<span class="string"><span class="delimiter">&quot;</span><span class="content">bolhas.png</span><span class="delimiter">&quot;</span></span>, CV_LOAD_IMAGE_GRAYSCALE);
+
+        <span class="keyword">if</span> (!image.data) {
+                std::cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">imagem nao carregou corretamente</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>;
+                <span class="keyword">return</span>(-<span class="integer">1</span>);
+        }
+        width = image.size().width;
+        height = image.size().height;
+
+        p.x = <span class="integer">0</span>;
+        p.y = <span class="integer">0</span>;
+
+        <span class="keyword">for</span> (<span class="predefined-type">int</span> i = <span class="integer">0</span>; i &lt; height; i++) {
+                <span class="keyword">if</span> (image.at&lt;uchar&gt;(i, <span class="integer">0</span>) == <span class="integer">255</span>) {
+                        <span class="comment">// bolha na borda</span>
+                        p.x = <span class="integer">0</span>;
+                        p.y = i;
+                        floodFill(image, p, <span class="integer">0</span>);
+                }
+
+                <span class="keyword">if</span> (image.at&lt;uchar&gt;(i, width - <span class="integer">1</span>) == <span class="integer">255</span>) {
+                        <span class="comment">// bolha na borda</span>
+                        p.x = width - <span class="integer">1</span>;
+                        p.y = i;
+                        floodFill(image, p, <span class="integer">0</span>);
+                }
+        }
+
+        <span class="keyword">for</span> (<span class="predefined-type">int</span> j = <span class="integer">0</span>; j &lt; width; j++) {
+                <span class="keyword">if</span> (image.at&lt;uchar&gt;(<span class="integer">0</span>, j) == <span class="integer">255</span>) {
+                        <span class="comment">// bolha na borda</span>
+                        p.x = j;
+                        p.y = <span class="integer">0</span>;
+                        floodFill(image, p, <span class="integer">0</span>);
+                }
+
+                <span class="keyword">if</span> (image.at&lt;uchar&gt;(height - <span class="integer">1</span>, j) == <span class="integer">255</span>) {
+                        <span class="comment">// bolha na borda</span>
+                        p.x = j;
+                        p.y = height - <span class="integer">1</span>;
+                        floodFill(image, p, <span class="integer">0</span>);
+                }
+        }
+
+
+        <span class="comment">// busca objetos</span>
+        nobjects = <span class="integer">0</span>;
+        <span class="keyword">for</span> (<span class="predefined-type">int</span> i = <span class="integer">0</span>; i&lt;height; i++) {
+                <span class="keyword">for</span> (<span class="predefined-type">int</span> j = <span class="integer">0</span>; j&lt;width; j++) {
+                        <span class="keyword">if</span> (image.at&lt;uchar&gt;(i, j) == <span class="integer">255</span>) {
+                                <span class="comment">// achou um objeto</span>
+                                nobjects++;
+                                p.x = j;
+                                p.y = i;
+                                floodFill(image, p, nobjects);
+                        }
+                }
+        }
+
+        p.x = <span class="integer">0</span>;
+        p.y = <span class="integer">0</span>;
+        floodFill(image, p, <span class="integer">255</span>);
+
+        nburacos = <span class="integer">0</span>;
+        nobjburacos = <span class="integer">0</span>;
+
+        <span class="keyword">for</span> (<span class="predefined-type">int</span> i = <span class="integer">0</span>; i&lt;height; i++) {
+                <span class="keyword">for</span> (<span class="predefined-type">int</span> j = <span class="integer">0</span>; j&lt;width; j++) {
+                        <span class="keyword">if</span> (image.at&lt;uchar&gt;(i, j) == <span class="integer">0</span>) {
+                                <span class="comment">// achou um buraco</span>
+                                <span class="keyword">if</span> (image.at&lt;uchar&gt;(i, j - <span class="integer">1</span>) == <span class="integer">254</span>) {
+                                        nburacos++;
+                                        p.x = j;
+                                        p.y = i;
+                                        floodFill(image, p, <span class="integer">255</span>);
+                                }
+                                <span class="keyword">else</span> {
+                                        nobjburacos++;
+                                        nburacos++;
+                                        p.x = j;
+                                        p.y = i;
+                                        floodFill(image, p, <span class="integer">255</span>);
+                                        p.x = j-<span class="integer">1</span>;
+                                        p.y = i;
+                                        floodFill(image, p, <span class="integer">254</span>);
+                                }
+                        }
+                }
+        }
+
+
+        imshow(<span class="string"><span class="delimiter">&quot;</span><span class="content">image</span><span class="delimiter">&quot;</span></span>, image);
+        imwrite(<span class="string"><span class="delimiter">&quot;</span><span class="content">labeling.png</span><span class="delimiter">&quot;</span></span>, image);
+        std::cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">Numero de elementos total: </span><span class="delimiter">&quot;</span></span> &lt;&lt; nobjects &lt;&lt; std::endl &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">Numero de elementos com buracos: </span><span class="delimiter">&quot;</span></span> &lt;&lt; nobjburacos&lt;&lt;std::endl &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">Numero de buracos: </span><span class="delimiter">&quot;</span></span> &lt;&lt; nburacos;
+        waitKey();
+        <span class="keyword">return</span> <span class="integer">0</span>;
+}</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="005bolhas.png" alt="005bolhas">
+</div>
+<div class="title">Figure 5. Imagem original</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="006terminal.png" alt="006terminal">
+</div>
+<div class="title">Figure 6. Saída do terminal</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="007bolhassaida.png" alt="007bolhassaida">
+</div>
+<div class="title">Figure 7. Imagem de saída</div>
+</div>
+<div class="paragraph">
+<p>Eu fiz ainda uma modificação na imagem original para manter o número de bolhas com buracos porém com mais buracos em cada bolha:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="008bolhas2.png" alt="008bolhas2">
+</div>
+<div class="title">Figure 8. Imagem modificada para ter mais buracos</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="009terminal.png" alt="009terminal">
+</div>
+<div class="title">Figure 9. Saída do terminal</div>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-09-06 23:26:13 Hora oficial do Brasil
+Last updated 2017-09-07 01:31:36 Hora oficial do Brasil
 </div>
 </div>
 </body>
