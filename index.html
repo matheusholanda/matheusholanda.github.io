@@ -5,7 +5,8 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<title>My First Experience with the Dangers of Documentation</title>
+<meta name="author" content="Matheus Holanda">
+<title>Exercícios da disciplina Processamento Digital de Imagens</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -424,34 +425,231 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 .hide-for-print{display:none!important}
 .show-for-print{display:inherit!important}}
 </style>
+<style>
+/* Stylesheet for CodeRay to match GitHub theme | MIT License | http://foundation.zurb.com */
+/*pre.CodeRay {background-color:#f7f7f8;}*/
+.CodeRay .line-numbers{border-right:1px solid #d8d8d8;padding:0 0.5em 0 .25em}
+.CodeRay span.line-numbers{display:inline-block;margin-right:.5em;color:rgba(0,0,0,.3)}
+.CodeRay .line-numbers strong{color:rgba(0,0,0,.4)}
+table.CodeRay{border-collapse:separate;border-spacing:0;margin-bottom:0;border:0;background:none}
+table.CodeRay td{vertical-align: top;line-height:1.45}
+table.CodeRay td.line-numbers{text-align:right}
+table.CodeRay td.line-numbers>pre{padding:0;color:rgba(0,0,0,.3)}
+table.CodeRay td.code{padding:0 0 0 .5em}
+table.CodeRay td.code>pre{padding:0}
+.CodeRay .debug{color:#fff !important;background:#000080 !important}
+.CodeRay .annotation{color:#007}
+.CodeRay .attribute-name{color:#000080}
+.CodeRay .attribute-value{color:#700}
+.CodeRay .binary{color:#509}
+.CodeRay .comment{color:#998;font-style:italic}
+.CodeRay .char{color:#04d}
+.CodeRay .char .content{color:#04d}
+.CodeRay .char .delimiter{color:#039}
+.CodeRay .class{color:#458;font-weight:bold}
+.CodeRay .complex{color:#a08}
+.CodeRay .constant,.CodeRay .predefined-constant{color:#008080}
+.CodeRay .color{color:#099}
+.CodeRay .class-variable{color:#369}
+.CodeRay .decorator{color:#b0b}
+.CodeRay .definition{color:#099}
+.CodeRay .delimiter{color:#000}
+.CodeRay .doc{color:#970}
+.CodeRay .doctype{color:#34b}
+.CodeRay .doc-string{color:#d42}
+.CodeRay .escape{color:#666}
+.CodeRay .entity{color:#800}
+.CodeRay .error{color:#808}
+.CodeRay .exception{color:inherit}
+.CodeRay .filename{color:#099}
+.CodeRay .function{color:#900;font-weight:bold}
+.CodeRay .global-variable{color:#008080}
+.CodeRay .hex{color:#058}
+.CodeRay .integer,.CodeRay .float{color:#099}
+.CodeRay .include{color:#555}
+.CodeRay .inline{color:#000}
+.CodeRay .inline .inline{background:#ccc}
+.CodeRay .inline .inline .inline{background:#bbb}
+.CodeRay .inline .inline-delimiter{color:#d14}
+.CodeRay .inline-delimiter{color:#d14}
+.CodeRay .important{color:#555;font-weight:bold}
+.CodeRay .interpreted{color:#b2b}
+.CodeRay .instance-variable{color:#008080}
+.CodeRay .label{color:#970}
+.CodeRay .local-variable{color:#963}
+.CodeRay .octal{color:#40e}
+.CodeRay .predefined{color:#369}
+.CodeRay .preprocessor{color:#579}
+.CodeRay .pseudo-class{color:#555}
+.CodeRay .directive{font-weight:bold}
+.CodeRay .type{font-weight:bold}
+.CodeRay .predefined-type{color:inherit}
+.CodeRay .reserved,.CodeRay .keyword {color:#000;font-weight:bold}
+.CodeRay .key{color:#808}
+.CodeRay .key .delimiter{color:#606}
+.CodeRay .key .char{color:#80f}
+.CodeRay .value{color:#088}
+.CodeRay .regexp .delimiter{color:#808}
+.CodeRay .regexp .content{color:#808}
+.CodeRay .regexp .modifier{color:#808}
+.CodeRay .regexp .char{color:#d14}
+.CodeRay .regexp .function{color:#404;font-weight:bold}
+.CodeRay .string{color:#d20}
+.CodeRay .string .string .string{background:#ffd0d0}
+.CodeRay .string .content{color:#d14}
+.CodeRay .string .char{color:#d14}
+.CodeRay .string .delimiter{color:#d14}
+.CodeRay .shell{color:#d14}
+.CodeRay .shell .delimiter{color:#d14}
+.CodeRay .symbol{color:#990073}
+.CodeRay .symbol .content{color:#a60}
+.CodeRay .symbol .delimiter{color:#630}
+.CodeRay .tag{color:#008080}
+.CodeRay .tag-special{color:#d70}
+.CodeRay .variable{color:#036}
+.CodeRay .insert{background:#afa}
+.CodeRay .delete{background:#faa}
+.CodeRay .change{color:#aaf;background:#007}
+.CodeRay .head{color:#f8f;background:#505}
+.CodeRay .insert .insert{color:#080}
+.CodeRay .delete .delete{color:#800}
+.CodeRay .change .change{color:#66f}
+.CodeRay .head .head{color:#f4f}
+</style>
 </head>
-<body class="article">
+<body class="article toc2 toc-left">
 <div id="header">
-<h1>My First Experience with the Dangers of Documentation</h1>
+<h1>Exercícios da disciplina Processamento Digital de Imagens</h1>
+<div class="details">
+<span id="author" class="author">Matheus Holanda</span><br>
+<span id="email" class="email"><a href="mailto:matheusholandagomes@gmail.com">matheusholandagomes@gmail.com</a></span><br>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Sumário</div>
+<ul class="sectlevel1">
+<li><a href="#_prefácio">Prefácio</a></li>
+<li><a href="#_2_manipulando_pixels_em_uma_imagem">2. Manipulando pixels em uma imagem</a>
+<ul class="sectlevel2">
+<li><a href="#_em_regions_cpp_em"><em>Regions.cpp</em></a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
-<div id="preamble">
+<div class="sect1">
+<h2 id="_prefácio">Prefácio</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>In my world, we don&#8217;t have to worry about mutant, script-injecting warlocks.
-No.
-We have something far worse.
-We&#8217;re plagued by Wolpertingers.</p>
+<p>Essa página foi criada por mim para apresentar a resolução dos exercícios que me foram apresentados na disciplina Processamento Digital de Imagens na UFRN pelo professor Agostinho Brito Jr. no semestre 2017.2. Os códigos foram implementados em C++ se utilizando das funcionalidades da biblioteca OpenCV.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_origins">Origins</h2>
+<h2 id="_2_manipulando_pixels_em_uma_imagem">2. Manipulando pixels em uma imagem</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_em_regions_cpp_em"><em>Regions.cpp</em></h3>
 <div class="paragraph">
-<p>You may not be familiar with these <a href="http://en.wikipedia.org/wiki/Wolpertinger">ravenous beasts</a>, but, trust me, they&#8217;ll eat your shorts and suck the loops from your code.</p>
+<p>O objetivo desse programa é de, após o usuário fornecer dois pontos pertencentes a uma imagem, transformar a área do retângulo definido pelos pontos em um negativo da imagem original.</p>
+</div>
+<div class="listingblock">
+<div class="title">regions.cpp</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="cpp"><span class="preprocessor">#include</span> <span class="include">&lt;iostream&gt;</span>
+<span class="preprocessor">#include</span> <span class="include">&lt;opencv2/opencv.hpp&gt;</span>
+
+<span class="directive">using</span> <span class="keyword">namespace</span> cv;
+<span class="directive">using</span> <span class="keyword">namespace</span> std;
+
+<span class="predefined-type">int</span> main(<span class="predefined-type">int</span>, <span class="predefined-type">char</span>**) {
+        Mat image;
+        <span class="predefined-type">int</span> p1x, p1y, p2x, p2y, auxiliar;
+
+        image = imread(<span class="string"><span class="delimiter">&quot;</span><span class="content">image.png</span><span class="delimiter">&quot;</span></span>, CV_LOAD_IMAGE_GRAYSCALE);
+        <span class="keyword">if</span> (!image.data)
+                cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">nao abriu image.png</span><span class="delimiter">&quot;</span></span> &lt;&lt; endl;
+
+
+
+        cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">Tamanho da imagem: (</span><span class="delimiter">&quot;</span></span> &lt;&lt; image.size().height &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content"> , </span><span class="delimiter">&quot;</span></span> &lt;&lt; image.size().width &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">)</span><span class="delimiter">&quot;</span></span>&lt;&lt;endl;
+        cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">Digite as coordenadas do ponto 1:</span><span class="delimiter">&quot;</span></span> &lt;&lt; endl &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">X: </span><span class="delimiter">&quot;</span></span>;
+        cin &gt;&gt; p1x;
+        cout &lt;&lt; endl &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">Y: </span><span class="delimiter">&quot;</span></span>;
+        cin &gt;&gt; p1y;
+        <span class="keyword">while</span> (p1x&gt;image.size().height || p1y&gt;image.size().width) {  <span class="comment">//NAO CONTINUAR CODIGO ENQUANTO AS COORDENADAS NAO ESTIVEREM DENTRO DA IMAGEM</span>
+                cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">Coordenadas invalidas. Digite novamente as coordenadas do ponto 1:</span><span class="delimiter">&quot;</span></span> &lt;&lt; endl &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">X: </span><span class="delimiter">&quot;</span></span>;
+                cin &gt;&gt; p1x;
+                cout &lt;&lt; endl &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">Y: </span><span class="delimiter">&quot;</span></span>;
+                cin &gt;&gt; p1y;
+        }
+
+        cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">Digite as coordenadas do ponto 2:</span><span class="delimiter">&quot;</span></span> &lt;&lt; endl &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">X: </span><span class="delimiter">&quot;</span></span>;
+        cin &gt;&gt; p2x;
+        cout &lt;&lt; endl &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">Y: </span><span class="delimiter">&quot;</span></span>;
+        cin &gt;&gt; p2y;
+        <span class="keyword">while</span> (p2x&gt;image.size().height || p2y&gt;image.size().width) {  <span class="comment">//NAO CONTINUAR CODIGO ENQUANTO AS COORDENADAS NAO ESTIVEREM DENTRO DA IMAGEM</span>
+                cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">Coordenadas invalidas. Digite novamente as coordenadas do ponto 2:</span><span class="delimiter">&quot;</span></span> &lt;&lt; endl &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">X: </span><span class="delimiter">&quot;</span></span>;
+                cin &gt;&gt; p2x;
+                cout &lt;&lt; endl &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">Y: </span><span class="delimiter">&quot;</span></span>;
+                cin &gt;&gt; p2y;
+        }
+        <span class="keyword">if</span> (p1x &gt; p2x) {    <span class="comment">//se p2x for menor que p1x, o for nao varrera corretamente a imagem</span>
+                auxiliar = p1x;
+                p1x = p2x;
+                p2x = auxiliar;
+        }
+
+        <span class="keyword">if</span> (p1y &gt; p2y) { <span class="comment">//se p2y for menor que p1y, o for nao varrera corretamente a imagem</span>
+                auxiliar = p1y;
+                p1y = p2y;
+                p2y = auxiliar;
+        }
+
+        <span class="keyword">for</span> (<span class="predefined-type">int</span> i = p1x; i&lt;=p2x; i++) {
+                <span class="keyword">for</span> (<span class="predefined-type">int</span> j = p1y; j&lt;=p2y; j++) {
+                        image.at&lt;uchar&gt;(i, j) = <span class="integer">255</span> - image.at&lt;uchar&gt;(i,j);
+                }
+        }
+
+        namedWindow(<span class="string"><span class="delimiter">&quot;</span><span class="content">janela</span><span class="delimiter">&quot;</span></span>, WINDOW_AUTOSIZE);
+
+        imshow(<span class="string"><span class="delimiter">&quot;</span><span class="content">janela</span><span class="delimiter">&quot;</span></span>, image);
+        waitKey();
+
+
+        <span class="keyword">return</span> <span class="integer">0</span>;
+}</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="001kevin.png" alt="001kevin">
+</div>
+<div class="title">Figure 1. Imagem original em P&amp;B</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="002terminal.png" alt="002terminal">
+</div>
+<div class="title">Figure 2. Saída do terminal</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="003kevin.png" alt="003kevin">
+</div>
+<div class="title">Figure 3. Resultado do processamento</div>
+</div>
+<div class="paragraph">
+<p>Repare como o código só permite valores de pontos presentes na imagem e como ele também foi preparado para caso a coordenada (seja y ou x) do ponto 2 tenha valor menor que a do ponto 1.</p>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-09-06 00:19:52 Hora oficial do Brasil
+Last updated 2017-09-06 23:15:02 Hora oficial do Brasil
 </div>
 </div>
 </body>
