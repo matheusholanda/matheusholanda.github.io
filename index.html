@@ -531,6 +531,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_2_manipulando_pixels_em_uma_imagem">2. Manipulando pixels em uma imagem</a>
 <ul class="sectlevel2">
 <li><a href="#_em_regions_cpp_em"><em>Regions.cpp</em></a></li>
+<li><a href="#_em_trocaregioes_cpp_em"><em>TrocaRegioes.cpp</em></a></li>
 </ul>
 </li>
 </ul>
@@ -644,12 +645,83 @@ table.CodeRay td.code>pre{padding:0}
 <p>Repare como o código só permite valores de pontos presentes na imagem e como ele também foi preparado para caso a coordenada (seja y ou x) do ponto 2 tenha valor menor que a do ponto 1.</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_em_trocaregioes_cpp_em"><em>TrocaRegioes.cpp</em></h3>
+<div class="paragraph">
+<p>Esse programa tem o objetivo de inverter diagonalmente os quadrantes de uma dada imagem.</p>
+</div>
+<div class="listingblock">
+<div class="title">trocaregioes.cpp</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="cpp"><span class="preprocessor">#include</span> <span class="include">&lt;iostream&gt;</span>
+<span class="preprocessor">#include</span> <span class="include">&lt;opencv2/opencv.hpp&gt;</span>
+
+<span class="directive">using</span> <span class="keyword">namespace</span> cv;
+<span class="directive">using</span> <span class="keyword">namespace</span> std;
+
+<span class="predefined-type">int</span> main(<span class="predefined-type">int</span>, <span class="predefined-type">char</span>**) {
+        Mat image, imageaux;
+
+
+        image = imread(<span class="string"><span class="delimiter">&quot;</span><span class="content">image.png</span><span class="delimiter">&quot;</span></span>, CV_LOAD_IMAGE_GRAYSCALE);
+        <span class="keyword">if</span> (!image.data)
+                cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">nao abriu image.png</span><span class="delimiter">&quot;</span></span> &lt;&lt; endl;
+
+        imageaux = imread(<span class="string"><span class="delimiter">&quot;</span><span class="content">image.png</span><span class="delimiter">&quot;</span></span>, CV_LOAD_IMAGE_GRAYSCALE);
+        <span class="keyword">if</span> (!imageaux.data)
+                cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">nao abriu image.png na auxiliar</span><span class="delimiter">&quot;</span></span> &lt;&lt; endl;
+
+
+
+
+        <span class="keyword">for</span> (<span class="predefined-type">int</span> i = <span class="integer">0</span>; i&lt;(image.size().height)/<span class="integer">2</span>; i++) { <span class="comment">//2 quad</span>
+                <span class="keyword">for</span> (<span class="predefined-type">int</span> j = <span class="integer">0</span>; j&lt;(image.size().width) / <span class="integer">2</span>; j++) {
+                        image.at&lt;uchar&gt;(i, j) = imageaux.at&lt;uchar&gt;(i+ (image.size().height) / <span class="integer">2</span>,j+ (image.size().width) / <span class="integer">2</span>);
+                }
+        }
+
+        <span class="keyword">for</span> (<span class="predefined-type">int</span> i = (image.size().height) / <span class="integer">2</span>; i&lt;(image.size().height); i++) { <span class="comment">//3 quad</span>
+                <span class="keyword">for</span> (<span class="predefined-type">int</span> j = <span class="integer">0</span>; j&lt;(image.size().width) / <span class="integer">2</span>; j++) {
+                        image.at&lt;uchar&gt;(i, j) = imageaux.at&lt;uchar&gt;(i - (image.size().height) / <span class="integer">2</span>, j + (image.size().width) / <span class="integer">2</span>);
+                }
+        }
+
+        <span class="keyword">for</span> (<span class="predefined-type">int</span> i = <span class="integer">0</span>; i&lt;(image.size().height) / <span class="integer">2</span>; i++) { <span class="comment">//1 quad</span>
+                <span class="keyword">for</span> (<span class="predefined-type">int</span> j = ((image.size().width)/<span class="integer">2</span>); j&lt;image.size().width; j++) {
+                        image.at&lt;uchar&gt;(i, j) = imageaux.at&lt;uchar&gt;(i + (image.size().height) / <span class="integer">2</span>, j - (image.size().width) / <span class="integer">2</span>);
+                }
+        }
+
+
+        <span class="keyword">for</span> (<span class="predefined-type">int</span> i = (image.size().height) / <span class="integer">2</span>; i&lt;(image.size().height); i++) { <span class="comment">//4 quad</span>
+                <span class="keyword">for</span> (<span class="predefined-type">int</span> j = ((image.size().width) / <span class="integer">2</span>); j&lt;image.size().width; j++) {
+                        image.at&lt;uchar&gt;(i, j) = imageaux.at&lt;uchar&gt;(i - (image.size().height) / <span class="integer">2</span>, j - (image.size().width) / <span class="integer">2</span>);
+                }
+        }
+
+        namedWindow(<span class="string"><span class="delimiter">&quot;</span><span class="content">janela</span><span class="delimiter">&quot;</span></span>, WINDOW_AUTOSIZE);
+
+        imshow(<span class="string"><span class="delimiter">&quot;</span><span class="content">janela</span><span class="delimiter">&quot;</span></span>, image);
+        waitKey();
+
+
+        <span class="keyword">return</span> <span class="integer">0</span>;
+}</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="004kevin.png" alt="004kevin">
+</div>
+<div class="title">Figure 4. Resultado do processamento</div>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-09-06 23:15:02 Hora oficial do Brasil
+Last updated 2017-09-06 23:26:13 Hora oficial do Brasil
 </div>
 </div>
 </body>
