@@ -540,6 +540,17 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_em_labelingburacos_cpp_em"><em>LabelingBuracos.cpp</em></a></li>
 </ul>
 </li>
+<li><a href="#_4_manipulação_de_histogramas">4. Manipulação de histogramas</a>
+<ul class="sectlevel2">
+<li><a href="#_em_equalize_cpp_em"><em>Equalize.cpp</em></a></li>
+<li><a href="#_em_motiondetector_cpp_em"><em>MotionDetector.cpp</em></a></li>
+</ul>
+</li>
+<li><a href="#_5_filtragem_no_domínio_espacial_i">5. Filtragem no domínio espacial I</a>
+<ul class="sectlevel2">
+<li><a href="#_em_laplgauss_cpp_em"><em>LaplGauss.cpp</em></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -890,10 +901,397 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_4_manipulação_de_histogramas">4. Manipulação de histogramas</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_em_equalize_cpp_em"><em>Equalize.cpp</em></h3>
+<div class="paragraph">
+<p>O objetivo desse código era equalizar os histogramas capturados na imagem. Isso foi feito com a função equalizeHist() da biblioteca do OpenCV.</p>
+</div>
+<div class="listingblock">
+<div class="title">equalize.cpp</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="cpp"><span class="preprocessor">#include</span> <span class="include">&lt;iostream&gt;</span>
+<span class="preprocessor">#include</span> <span class="include">&lt;opencv2/opencv.hpp&gt;</span>
+
+<span class="directive">using</span> <span class="keyword">namespace</span> cv;
+<span class="directive">using</span> <span class="keyword">namespace</span> std;
+
+<span class="predefined-type">int</span> main(<span class="predefined-type">int</span> argc, <span class="predefined-type">char</span>** argv) {
+        Mat image, imageeq;
+        <span class="predefined-type">int</span> width, height;
+        VideoCapture cap;
+        vector&lt;Mat&gt; planes, planeseq;
+        Mat histR, histG, histB;
+        <span class="predefined-type">int</span> nbins = <span class="integer">64</span>;
+        <span class="predefined-type">float</span> range[] = { <span class="integer">0</span>, <span class="integer">256</span> };
+        <span class="directive">const</span> <span class="predefined-type">float</span> *histrange = { range };
+        <span class="predefined-type">bool</span> uniform = <span class="predefined-constant">true</span>;
+        <span class="predefined-type">bool</span> acummulate = <span class="predefined-constant">false</span>;
+
+        cap.open(<span class="integer">0</span>);
+
+        <span class="keyword">if</span> (!cap.isOpened()) {
+                cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">cameras indisponiveis</span><span class="delimiter">&quot;</span></span>;
+                <span class="keyword">return</span> -<span class="integer">1</span>;
+        }
+
+        width = cap.get(CV_CAP_PROP_FRAME_WIDTH);
+        height = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+
+        cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">largura = </span><span class="delimiter">&quot;</span></span> &lt;&lt; width &lt;&lt; endl;
+        cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">altura  = </span><span class="delimiter">&quot;</span></span> &lt;&lt; height &lt;&lt; endl;
+
+        <span class="predefined-type">int</span> histw = nbins, histh = nbins / <span class="integer">2</span>;
+        Mat histImgR(histh, histw, CV_8UC3, Scalar(<span class="integer">0</span>, <span class="integer">0</span>, <span class="integer">0</span>));
+        Mat histImgG(histh, histw, CV_8UC3, Scalar(<span class="integer">0</span>, <span class="integer">0</span>, <span class="integer">0</span>));
+        Mat histImgB(histh, histw, CV_8UC3, Scalar(<span class="integer">0</span>, <span class="integer">0</span>, <span class="integer">0</span>));
+
+        <span class="keyword">while</span> (<span class="integer">1</span>) {
+                cap &gt;&gt; image;
+                split(image, planes);
+                split(image, planeseq);
+                <span class="comment">//EQUALIZACAO</span>
+                equalizeHist(planes[<span class="integer">0</span>], planeseq[<span class="integer">0</span>]);
+                equalizeHist(planes[<span class="integer">1</span>], planeseq[<span class="integer">1</span>]);
+                equalizeHist(planes[<span class="integer">2</span>], planeseq[<span class="integer">2</span>]);
+                merge(planes, image);
+                merge(planeseq, imageeq);
+                calcHist(&amp;planes[<span class="integer">0</span>], <span class="integer">1</span>, <span class="integer">0</span>, Mat(), histR, <span class="integer">1</span>,
+                        &amp;nbins, &amp;histrange,
+                        uniform, acummulate);
+                calcHist(&amp;planes[<span class="integer">1</span>], <span class="integer">1</span>, <span class="integer">0</span>, Mat(), histG, <span class="integer">1</span>,
+                        &amp;nbins, &amp;histrange,
+                        uniform, acummulate);
+                calcHist(&amp;planes[<span class="integer">2</span>], <span class="integer">1</span>, <span class="integer">0</span>, Mat(), histB, <span class="integer">1</span>,
+                        &amp;nbins, &amp;histrange,
+                        uniform, acummulate);
+
+                normalize(histR, histR, <span class="integer">0</span>, histImgR.rows, NORM_MINMAX, -<span class="integer">1</span>, Mat());
+                normalize(histG, histG, <span class="integer">0</span>, histImgG.rows, NORM_MINMAX, -<span class="integer">1</span>, Mat());
+                normalize(histB, histB, <span class="integer">0</span>, histImgB.rows, NORM_MINMAX, -<span class="integer">1</span>, Mat());
+
+                histImgR.setTo(Scalar(<span class="integer">0</span>));
+                histImgG.setTo(Scalar(<span class="integer">0</span>));
+                histImgB.setTo(Scalar(<span class="integer">0</span>));
+
+                <span class="keyword">for</span> (<span class="predefined-type">int</span> i = <span class="integer">0</span>; i&lt;nbins; i++) {
+                        line(histImgR,
+                                Point(i, histh),
+                                Point(i, histh - cvRound(histR.at&lt;<span class="predefined-type">float</span>&gt;(i))),
+                                Scalar(<span class="integer">0</span>, <span class="integer">0</span>, <span class="integer">255</span>), <span class="integer">1</span>, <span class="integer">8</span>, <span class="integer">0</span>);
+                        line(histImgG,
+                                Point(i, histh),
+                                Point(i, histh - cvRound(histG.at&lt;<span class="predefined-type">float</span>&gt;(i))),
+                                Scalar(<span class="integer">0</span>, <span class="integer">255</span>, <span class="integer">0</span>), <span class="integer">1</span>, <span class="integer">8</span>, <span class="integer">0</span>);
+                        line(histImgB,
+                                Point(i, histh),
+                                Point(i, histh - cvRound(histB.at&lt;<span class="predefined-type">float</span>&gt;(i))),
+                                Scalar(<span class="integer">255</span>, <span class="integer">0</span>, <span class="integer">0</span>), <span class="integer">1</span>, <span class="integer">8</span>, <span class="integer">0</span>);
+                }
+                histImgR.copyTo(image(Rect(<span class="integer">0</span>, <span class="integer">0</span>, nbins, histh)));
+                histImgG.copyTo(image(Rect(<span class="integer">0</span>, histh, nbins, histh)));
+                histImgB.copyTo(image(Rect(<span class="integer">0</span>, <span class="integer">2</span> * histh, nbins, histh)));
+                imshow(<span class="string"><span class="delimiter">&quot;</span><span class="content">image</span><span class="delimiter">&quot;</span></span>, image);
+
+                calcHist(&amp;planeseq[<span class="integer">0</span>], <span class="integer">1</span>, <span class="integer">0</span>, Mat(), histR, <span class="integer">1</span>,
+                        &amp;nbins, &amp;histrange,
+                        uniform, acummulate);
+                calcHist(&amp;planeseq[<span class="integer">1</span>], <span class="integer">1</span>, <span class="integer">0</span>, Mat(), histG, <span class="integer">1</span>,
+                        &amp;nbins, &amp;histrange,
+                        uniform, acummulate);
+                calcHist(&amp;planeseq[<span class="integer">2</span>], <span class="integer">1</span>, <span class="integer">0</span>, Mat(), histB, <span class="integer">1</span>,
+                        &amp;nbins, &amp;histrange,
+                        uniform, acummulate);
+
+                normalize(histR, histR, <span class="integer">0</span>, histImgR.rows, NORM_MINMAX, -<span class="integer">1</span>, Mat());
+                normalize(histG, histG, <span class="integer">0</span>, histImgG.rows, NORM_MINMAX, -<span class="integer">1</span>, Mat());
+                normalize(histB, histB, <span class="integer">0</span>, histImgB.rows, NORM_MINMAX, -<span class="integer">1</span>, Mat());
+
+                histImgR.setTo(Scalar(<span class="integer">0</span>));
+                histImgG.setTo(Scalar(<span class="integer">0</span>));
+                histImgB.setTo(Scalar(<span class="integer">0</span>));
+
+                <span class="keyword">for</span> (<span class="predefined-type">int</span> i = <span class="integer">0</span>; i&lt;nbins; i++) {
+                        line(histImgR,
+                                Point(i, histh),
+                                Point(i, histh - cvRound(histR.at&lt;<span class="predefined-type">float</span>&gt;(i))),
+                                Scalar(<span class="integer">0</span>, <span class="integer">0</span>, <span class="integer">255</span>), <span class="integer">1</span>, <span class="integer">8</span>, <span class="integer">0</span>);
+                        line(histImgG,
+                                Point(i, histh),
+                                Point(i, histh - cvRound(histG.at&lt;<span class="predefined-type">float</span>&gt;(i))),
+                                Scalar(<span class="integer">0</span>, <span class="integer">255</span>, <span class="integer">0</span>), <span class="integer">1</span>, <span class="integer">8</span>, <span class="integer">0</span>);
+                        line(histImgB,
+                                Point(i, histh),
+                                Point(i, histh - cvRound(histB.at&lt;<span class="predefined-type">float</span>&gt;(i))),
+                                Scalar(<span class="integer">255</span>, <span class="integer">0</span>, <span class="integer">0</span>), <span class="integer">1</span>, <span class="integer">8</span>, <span class="integer">0</span>);
+                }
+                histImgR.copyTo(imageeq(Rect(<span class="integer">0</span>, <span class="integer">0</span>, nbins, histh)));
+                histImgG.copyTo(imageeq(Rect(<span class="integer">0</span>, histh, nbins, histh)));
+                histImgB.copyTo(imageeq(Rect(<span class="integer">0</span>, <span class="integer">2</span> * histh, nbins, histh)));
+                imshow(<span class="string"><span class="delimiter">&quot;</span><span class="content">imageeq</span><span class="delimiter">&quot;</span></span>, imageeq);
+                <span class="keyword">if</span> (waitKey(<span class="integer">30</span>) &gt;= <span class="integer">0</span>) <span class="keyword">break</span>;
+        }
+        <span class="keyword">return</span> <span class="integer">0</span>;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O resultado, apresentado na figura a seguir em que a imagem original é comparada com a equalizada, é que a imagem com os histogramas equalizados possui um maior contraste.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="010equal.png" alt="010equal">
+</div>
+<div class="title">Figure 10. Comparativo entre a imagem original e a com histograma equalizado</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_em_motiondetector_cpp_em"><em>MotionDetector.cpp</em></h3>
+<div class="paragraph">
+<p>Esse programa usa a comparação de histogramas a fim de detectar movimento. A comparação é dada pelo método da correlação com a função compareHist() que retorna um valor que é salvo na variável de ponto flutuante <em>dif</em>. Se essa comparação gerar um valor menor ou igual a 0.96, o limiar escolhido, um alarme de movimento detectado é lançado na tela.</p>
+</div>
+<div class="listingblock">
+<div class="title">motiondetector.cpp</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="cpp"><span class="preprocessor">#include</span> <span class="include">&lt;iostream&gt;</span>
+<span class="preprocessor">#include</span> <span class="include">&lt;opencv2/opencv.hpp&gt;</span>
+
+<span class="directive">using</span> <span class="keyword">namespace</span> cv;
+<span class="directive">using</span> <span class="keyword">namespace</span> std;
+
+<span class="predefined-type">int</span> main(<span class="predefined-type">int</span> argc, <span class="predefined-type">char</span>** argv) {
+        Mat image;
+        <span class="predefined-type">int</span> width, height;
+        VideoCapture cap;
+        vector&lt;Mat&gt; planes;
+        Mat histR, histG, histB;
+        <span class="predefined-type">int</span> nbins = <span class="integer">64</span>;
+        <span class="predefined-type">float</span> range[] = { <span class="integer">0</span>, <span class="integer">256</span> };
+        <span class="directive">const</span> <span class="predefined-type">float</span> *histrange = { range };
+        <span class="predefined-type">bool</span> uniform = <span class="predefined-constant">true</span>;
+        <span class="predefined-type">bool</span> acummulate = <span class="predefined-constant">false</span>;
+        <span class="predefined-type">float</span> dif;
+
+        cap.open(<span class="integer">0</span>);
+
+        <span class="keyword">if</span> (!cap.isOpened()) {
+                cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">cameras indisponiveis</span><span class="delimiter">&quot;</span></span>;
+                <span class="keyword">return</span> -<span class="integer">1</span>;
+        }
+
+        width = cap.get(CV_CAP_PROP_FRAME_WIDTH);
+        height = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+
+        cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">largura = </span><span class="delimiter">&quot;</span></span> &lt;&lt; width &lt;&lt; endl;
+        cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">altura  = </span><span class="delimiter">&quot;</span></span> &lt;&lt; height &lt;&lt; endl;
+
+        <span class="predefined-type">int</span> histw = nbins, histh = nbins / <span class="integer">2</span>;
+        Mat histImgR(histh, histw, CV_8UC3, Scalar(<span class="integer">0</span>, <span class="integer">0</span>, <span class="integer">0</span>));
+        Mat histImgG(histh, histw, CV_8UC3, Scalar(<span class="integer">0</span>, <span class="integer">0</span>, <span class="integer">0</span>));
+        Mat histImgB(histh, histw, CV_8UC3, Scalar(<span class="integer">0</span>, <span class="integer">0</span>, <span class="integer">0</span>));
+
+        <span class="keyword">while</span> (<span class="integer">1</span>) {
+                cap &gt;&gt; image;
+                split(image, planes);
+                calcHist(&amp;planes[<span class="integer">0</span>], <span class="integer">1</span>, <span class="integer">0</span>, Mat(), histR, <span class="integer">1</span>,
+                        &amp;nbins, &amp;histrange,
+                        uniform, acummulate);
+                cap &gt;&gt; image;
+                split(image, planes);
+                calcHist(&amp;planes[<span class="integer">0</span>], <span class="integer">1</span>, <span class="integer">0</span>, Mat(), histG, <span class="integer">1</span>,
+                        &amp;nbins, &amp;histrange,
+                        uniform, acummulate);
+                dif = compareHist(histR, histG, CV_COMP_CORREL);
+                <span class="comment">//cout &lt;&lt; &quot;diferenca: &quot; &lt;&lt; dif &lt;&lt; endl;</span>
+                <span class="keyword">if</span> (dif &lt;= <span class="float">0</span><span class="float">.96</span>) {
+                        putText(image, <span class="string"><span class="delimiter">&quot;</span><span class="content">MOVIMENTO DETECTADO</span><span class="delimiter">&quot;</span></span>, Point(width/<span class="integer">2</span> - <span class="integer">200</span>, height/<span class="integer">2</span>), FONT_HERSHEY_SIMPLEX, <span class="integer">1</span>, Scalar(<span class="integer">0</span>,<span class="integer">0</span>,<span class="integer">255</span>), <span class="integer">2</span>);
+                }
+
+                imshow(<span class="string"><span class="delimiter">&quot;</span><span class="content">image</span><span class="delimiter">&quot;</span></span>, image);
+                <span class="keyword">if</span> (waitKey(<span class="integer">30</span>) &gt;= <span class="integer">0</span>) <span class="keyword">break</span>;
+        }
+        <span class="keyword">return</span> <span class="integer">0</span>;
+}</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="011motion.png" alt="011motion">
+</div>
+<div class="title">Figure 11. Saída do programa com o alarme indicando movimento</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_5_filtragem_no_domínio_espacial_i">5. Filtragem no domínio espacial I</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_em_laplgauss_cpp_em"><em>LaplGauss.cpp</em></h3>
+<div class="paragraph">
+<p>Nesse código o objetivo foi adicionar um novo filtro ao arquivo <em>filtroespacial.cpp</em>, um filtro laplaciano do gaussiano. Esse filtro, conhecido como filtro de Marr-Hildreth, foi feito com uma máscara 5x5 e os resultados, ao comparar com o laplaciano sozinho, podem ser vistos nas figuras após o código.</p>
+</div>
+<div class="listingblock">
+<div class="title">laplgauss.cpp</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="cpp"><span class="preprocessor">#include</span> <span class="include">&lt;iostream&gt;</span>
+<span class="preprocessor">#include</span> <span class="include">&lt;opencv2/opencv.hpp&gt;</span>
+
+<span class="directive">using</span> <span class="keyword">namespace</span> cv;
+<span class="directive">using</span> <span class="keyword">namespace</span> std;
+
+<span class="directive">void</span> printmask(Mat &amp;m) {
+        <span class="keyword">for</span> (<span class="predefined-type">int</span> i = <span class="integer">0</span>; i&lt;m.size().height; i++) {
+                <span class="keyword">for</span> (<span class="predefined-type">int</span> j = <span class="integer">0</span>; j&lt;m.size().width; j++) {
+                        cout &lt;&lt; m.at&lt;<span class="predefined-type">float</span>&gt;(i, j) &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">,</span><span class="delimiter">&quot;</span></span>;
+                }
+                cout &lt;&lt; endl;
+        }
+}
+
+<span class="directive">void</span> menu() {
+        cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="char">\n</span><span class="content">pressione a tecla para ativar o filtro: </span><span class="char">\n</span><span class="delimiter">&quot;</span></span>
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">a - calcular modulo</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">m - media</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">g - gauss</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">v - vertical</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">h - horizontal</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">l - laplaciano</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">d - laplaciano do gaussiano</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>
+                <span class="string"><span class="delimiter">&quot;</span><span class="content">esc - sair</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>;
+}
+
+<span class="predefined-type">int</span> main(<span class="predefined-type">int</span> argvc, <span class="predefined-type">char</span>** argv) {
+        VideoCapture video;
+        <span class="predefined-type">float</span> media[] = { <span class="integer">1</span>,<span class="integer">1</span>,<span class="integer">1</span>,
+                <span class="integer">1</span>,<span class="integer">1</span>,<span class="integer">1</span>,
+                <span class="integer">1</span>,<span class="integer">1</span>,<span class="integer">1</span> };
+        <span class="predefined-type">float</span> gauss[] = { <span class="integer">1</span>,<span class="integer">2</span>,<span class="integer">1</span>,
+                <span class="integer">2</span>,<span class="integer">4</span>,<span class="integer">2</span>,
+                <span class="integer">1</span>,<span class="integer">2</span>,<span class="integer">1</span> };
+        <span class="predefined-type">float</span> horizontal[] = { -<span class="integer">1</span>,<span class="integer">0</span>,<span class="integer">1</span>,
+                -<span class="integer">2</span>,<span class="integer">0</span>,<span class="integer">2</span>,
+                -<span class="integer">1</span>,<span class="integer">0</span>,<span class="integer">1</span> };
+        <span class="predefined-type">float</span> vertical[] = { -<span class="integer">1</span>,-<span class="integer">2</span>,-<span class="integer">1</span>,
+                <span class="integer">0</span>,<span class="integer">0</span>,<span class="integer">0</span>,
+                <span class="integer">1</span>,<span class="integer">2</span>,<span class="integer">1</span> };
+        <span class="predefined-type">float</span> laplacian[] = { <span class="integer">0</span>,-<span class="integer">1</span>,<span class="integer">0</span>,
+                -<span class="integer">1</span>,<span class="integer">4</span>,-<span class="integer">1</span>,
+                <span class="integer">0</span>,-<span class="integer">1</span>,<span class="integer">0</span> };
+        <span class="predefined-type">float</span> laplgauss[] = { <span class="integer">0</span>,<span class="integer">0</span>,<span class="integer">1</span>,<span class="integer">0</span>,<span class="integer">0</span>,
+                <span class="integer">0</span>,<span class="integer">1</span>,<span class="integer">2</span>,<span class="integer">1</span>,<span class="integer">0</span>,
+                <span class="integer">1</span>,<span class="integer">2</span>,-<span class="integer">16</span>,<span class="integer">2</span>,<span class="integer">1</span>,
+                <span class="integer">0</span>,<span class="integer">1</span>,<span class="integer">2</span>,<span class="integer">1</span>,<span class="integer">0</span>,
+                <span class="integer">0</span>,<span class="integer">0</span>,<span class="integer">1</span>,<span class="integer">0</span>,<span class="integer">0</span> };
+
+        Mat cap, frame, frame32f, frameFiltered;
+        Mat mask(<span class="integer">3</span>, <span class="integer">3</span>, CV_32F), mask1;
+        Mat result, result1;
+        <span class="predefined-type">double</span> width, height, min, max;
+        <span class="predefined-type">int</span> absolut;
+        <span class="predefined-type">char</span> key;
+
+        video.open(<span class="integer">0</span>);
+        <span class="keyword">if</span> (!video.isOpened())
+                <span class="keyword">return</span> -<span class="integer">1</span>;
+        width = video.get(CV_CAP_PROP_FRAME_WIDTH);
+        height = video.get(CV_CAP_PROP_FRAME_HEIGHT);
+        std::cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">largura=</span><span class="delimiter">&quot;</span></span> &lt;&lt; width &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>;;
+        std::cout &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="content">altura =</span><span class="delimiter">&quot;</span></span> &lt;&lt; height &lt;&lt; <span class="string"><span class="delimiter">&quot;</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>;;
+
+        namedWindow(<span class="string"><span class="delimiter">&quot;</span><span class="content">filtroespacial</span><span class="delimiter">&quot;</span></span>, <span class="integer">1</span>);
+
+        mask = Mat(<span class="integer">3</span>, <span class="integer">3</span>, CV_32F, media);
+        scaleAdd(mask, <span class="integer">1</span> / <span class="float">9</span><span class="float">.0</span>, Mat::zeros(<span class="integer">3</span>, <span class="integer">3</span>, CV_32F), mask1);
+        swap(mask, mask1);
+        absolut = <span class="integer">1</span>; <span class="comment">// calcs abs of the image</span>
+
+        menu();
+        <span class="keyword">for</span> (;;) {
+                video &gt;&gt; cap;
+                cvtColor(cap, frame, CV_BGR2GRAY);
+                flip(frame, frame, <span class="integer">1</span>);
+                imshow(<span class="string"><span class="delimiter">&quot;</span><span class="content">original</span><span class="delimiter">&quot;</span></span>, frame);
+                frame.convertTo(frame32f, CV_32F);
+                filter2D(frame32f, frameFiltered, frame32f.depth(), mask, Point(<span class="integer">1</span>, <span class="integer">1</span>), <span class="integer">0</span>);
+                <span class="keyword">if</span> (absolut) {
+                        frameFiltered = abs(frameFiltered);
+                }
+                frameFiltered.convertTo(result, CV_8U);
+                imshow(<span class="string"><span class="delimiter">&quot;</span><span class="content">filtroespacial</span><span class="delimiter">&quot;</span></span>, result);
+                key = (<span class="predefined-type">char</span>)waitKey(<span class="integer">10</span>);
+                <span class="keyword">if</span> (key == <span class="integer">27</span>) <span class="keyword">break</span>; <span class="comment">// esc pressed!</span>
+                <span class="keyword">switch</span> (key) {
+                <span class="keyword">case</span> <span class="char">'a'</span>:
+                        menu();
+                        absolut = !absolut;
+                        <span class="keyword">break</span>;
+                <span class="keyword">case</span> <span class="char">'m'</span>:
+                        menu();
+                        mask = Mat(<span class="integer">3</span>, <span class="integer">3</span>, CV_32F, media);
+                        scaleAdd(mask, <span class="integer">1</span> / <span class="float">9</span><span class="float">.0</span>, Mat::zeros(<span class="integer">3</span>, <span class="integer">3</span>, CV_32F), mask1);
+                        mask = mask1;
+                        printmask(mask);
+                        <span class="keyword">break</span>;
+                <span class="keyword">case</span> <span class="char">'g'</span>:
+                        menu();
+                        mask = Mat(<span class="integer">3</span>, <span class="integer">3</span>, CV_32F, gauss);
+                        scaleAdd(mask, <span class="integer">1</span> / <span class="integer">1</span><span class="float">6</span><span class="float">.0</span>, Mat::zeros(<span class="integer">3</span>, <span class="integer">3</span>, CV_32F), mask1);
+                        mask = mask1;
+                        printmask(mask);
+                        <span class="keyword">break</span>;
+                <span class="keyword">case</span> <span class="char">'h'</span>:
+                        menu();
+                        mask = Mat(<span class="integer">3</span>, <span class="integer">3</span>, CV_32F, horizontal);
+                        printmask(mask);
+                        <span class="keyword">break</span>;
+                <span class="keyword">case</span> <span class="char">'v'</span>:
+                        menu();
+                        mask = Mat(<span class="integer">3</span>, <span class="integer">3</span>, CV_32F, vertical);
+                        printmask(mask);
+                        <span class="keyword">break</span>;
+                <span class="keyword">case</span> <span class="char">'l'</span>:
+                        menu();
+                        mask = Mat(<span class="integer">3</span>, <span class="integer">3</span>, CV_32F, laplacian);
+                        printmask(mask);
+                        <span class="keyword">break</span>;
+                <span class="keyword">case</span> <span class="char">'d'</span>:
+                        menu();
+                        mask = Mat(<span class="integer">5</span>, <span class="integer">5</span>, CV_32F, laplgauss);
+                        printmask(mask);
+                        <span class="keyword">break</span>;
+                <span class="keyword">default</span>:
+                        <span class="keyword">break</span>;
+                }
+        }
+        <span class="keyword">return</span> <span class="integer">0</span>;
+}</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="012lapl.png" alt="012lapl">
+</div>
+<div class="title">Figure 12. Saída do filtro Laplaciano</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="013laplgauss.png" alt="013laplgauss">
+</div>
+<div class="title">Figure 13. Saída do Laplaciano do Gaussiano</div>
+</div>
+<div class="paragraph">
+<p>É possível observar que as bordas são bem mais evidentes no Laplaciano do Gaussiano que no Laplaciano sozinho, ainda que o ruído seja mais presente.</p>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-09-07 01:31:36 Hora oficial do Brasil
+Last updated 2017-09-07 02:52:29 Hora oficial do Brasil
 </div>
 </div>
 </body>
